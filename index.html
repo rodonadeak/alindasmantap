@@ -158,13 +158,22 @@
 
     </select>
   </div>
-  <div class="matrix-grid" id="matrix-input"></div>
-  <div class="center">
-    <button class="calculate" onclick="calculate()">Hitung!</button>
+  <div id="form-wrapper">
+    <div class="matrix-grid" id="matrix-input"></div>
+    <div class="center" style="display: flex; justify-content: center; gap: 15px; flex-wrap: wrap;">
+      <button class="calculate" onclick="calculate()">Hitung!</button>
+      <button class="calculate" style="background-color: #ef4444;" onclick="resetPage()">Reset!</button>
+    </div>
   </div>
+  
+  
   <div id="result"></div>
 
   <script>
+    function resetPage() {
+  window.location.href = 'index.html'; // atau gunakan location.reload();
+}
+
     const matrixInput = document.getElementById('matrix-input');
     for (let i = 0; i < 4; i++) {
       for (let j = 0; j < 4; j++) {
@@ -214,21 +223,32 @@
   html += '<h3>Langkah Ekspansi Baris Pertama</h3>';
 
   let det = 0;
-  for (let col = 0; col < 4; col++) {
-    const minor = getMinor(matrix, 0, col);
-    const sign = Math.pow(-1, 0 + col); // Perbaikan di sini: (-1)^(i+j)
-    const minorDet = sarrus3x3(minor);
-    const cof = sign * minorDet.value;
-    det += matrix[0][col] * cof; // Perbaikan di sini: a_ij * C_ij
+let detailSum = '';
+let detContributions = [];
 
-    html += `<p>a<sub>1${col + 1}</sub> = ${matrix[0][col]}, tanda = ${sign}, minor = ${minorDet.value}</p>`;
-    html += renderMatrix(minor);
-    html += minorDet.html;
-    html += `<p>Kofaktor = ${sign} × ${minorDet.value} = <b>${cof}</b></p>`;
-    html += `<p>Kontribusi determinan = ${matrix[0][col]} × ${cof} = <b>${matrix[0][col] * cof}</b></p><hr />`;
-  }
+for (let col = 0; col < 4; col++) {
+  const minor = getMinor(matrix, 0, col);
+  const sign = Math.pow(-1, 0 + col);
+  const minorDet = sarrus3x3(minor);
+  const cof = sign * minorDet.value;
+  const contrib = matrix[0][col] * cof;
+  det += contrib;
 
-  html += `<div class="final-result">Determinan Matriks = <span>${det}</span></div>`;
+  html += `<p>a<sub>1${col + 1}</sub> = ${matrix[0][col]}, tanda = ${sign}, minor = ${minorDet.value}</p>`;
+  html += renderMatrix(minor);
+  html += minorDet.html;
+  html += `<p>Kofaktor = ${sign} × ${minorDet.value} = <b>${cof}</b></p>`;
+  html += `<p>Kontribusi determinan = ${matrix[0][col]} × ${cof} = <b>${contrib}</b></p><hr />`;
+
+  detContributions.push(contrib);
+}
+
+// Penjumlahan akhir dari kontribusi determinan
+detailSum = detContributions.map(v => (v < 0 ? `(${v})` : v)).join(' + ');
+html += `<p><strong>Langkah Penjumlahan Akhir:</strong></p>`;
+html += `<p>Determinan = ${detailSum} = <b>${det}</b></p>`;
+html += `<div class="final-result">Determinan Matriks = <span>${det}</span></div>`;
+
   card.innerHTML = html;
   result.appendChild(card);
 }
