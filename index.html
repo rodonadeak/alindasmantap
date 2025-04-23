@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Kalkulator Determinan 4x4 Ultra Kece</title>
+  <title>Determinan Matriks 4x4</title>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
   <style>
     :root {
@@ -20,6 +20,9 @@
       --card-bg: #1f2937;
       --blur-bg: rgba(255, 255, 255, 0.1);
     }
+    * {
+      box-sizing: border-box;
+    }
     body {
       font-family: 'Poppins', sans-serif;
       background-color: var(--bg);
@@ -31,12 +34,13 @@
     header {
       text-align: center;
       padding: 20px;
+      animation: fadeInDown 1s ease-in-out;
     }
     header h1 {
       font-size: 2rem;
     }
     .toggle-mode {
-      position: absolute;
+      position: fixed;
       top: 20px;
       right: 20px;
       background: var(--secondary);
@@ -44,6 +48,7 @@
       padding: 10px 15px;
       border-radius: 10px;
       cursor: pointer;
+      z-index: 1000;
     }
     .matrix-grid {
       display: grid;
@@ -51,6 +56,7 @@
       gap: 10px;
       justify-content: center;
       margin: 20px 0;
+      animation: fadeIn 1s ease forwards;
     }
     .matrix-grid input {
       width: 60px;
@@ -61,6 +67,11 @@
       border: 2px solid var(--secondary);
       background-color: var(--card-bg);
       color: var(--text);
+      transition: transform 0.2s;
+    }
+    .matrix-grid input:focus {
+      transform: scale(1.1);
+      outline: none;
     }
     .center {
       text-align: center;
@@ -73,10 +84,11 @@
       border: none;
       border-radius: 10px;
       cursor: pointer;
-      transition: 0.3s ease;
+      transition: 0.3s ease, transform 0.2s ease;
     }
     button.calculate:hover {
       background-color: #4338ca;
+      transform: scale(1.05);
     }
     .result-card {
       margin: 30px auto;
@@ -87,11 +99,19 @@
       padding: 20px;
       backdrop-filter: blur(10px);
       transition: 0.5s ease;
-      animation: fadeInUp 0.5s ease forwards;
+      animation: fadeInUp 0.8s ease forwards;
     }
-    @keyframes fadeInUp {
-      from { opacity: 0; transform: translateY(20px); }
-      to { opacity: 1; transform: translateY(0); }
+    .minor-card {
+      border: 1px solid var(--secondary);
+      border-radius: 15px;
+      padding: 15px;
+      margin-bottom: 20px;
+      background-color: var(--card-bg);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    .minor-card:hover {
+      transform: scale(1.03);
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
     }
     .matrix-table td {
       border: 1px solid #ccc;
@@ -108,37 +128,121 @@
       border-radius: 8px;
     }
     .final-result {
-      font-size: 20px;
+      font-size: 24px;
       font-weight: bold;
       color: var(--primary);
       text-align: center;
       margin-top: 20px;
-    }
-    @media(max-width: 600px) {
-      .matrix-grid { grid-template-columns: repeat(4, 50px); }
-      .matrix-grid input { width: 50px; height: 50px; font-size: 16px; }
+      animation: bounceIn 1s ease;
     }
     #loading-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: var(--blur-bg);
+      backdrop-filter: blur(5px);
+      z-index: 999;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 24px;
+      font-weight: bold;
+      color: var(--text);
+    }
+    .loading-text {
+      padding: 20px;
+      border-radius: 10px;
+      animation: pulse 1.5s infinite;
+    }
+    .sarrus-diagonal-main {
+      background-color: rgba(74, 222, 128, 0.4);
+    }
+    .sarrus-diagonal-secondary {
+      background-color: rgba(248, 113, 113, 0.4);
+    }
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes fadeInDown {
+      from { opacity: 0; transform: translateY(-20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes bounceIn {
+      0% { transform: scale(0.9); opacity: 0; }
+      50% { transform: scale(1.05); opacity: 1; }
+      100% { transform: scale(1); }
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+    @media(max-width: 600px) {
+      .matrix-grid {
+        grid-template-columns: repeat(4, 50px);
+      }
+      .matrix-grid input {
+        width: 50px;
+        height: 50px;
+        font-size: 16px;
+      }
+    }
+    .switch {
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: var(--blur-bg);
-  backdrop-filter: blur(5px);
-  z-index: 999;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  font-size: 24px;
-  font-weight: bold;
-  color: var(--text);
+  top: 20px;
+  right: 20px;
+  z-index: 1000;
+  display: inline-block;
+  width: 50px;
+  height: 28px;
 }
 
-.loading-text {
-  padding: 20px;
-  border-radius: 10px;
+
+
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
 }
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  background-color: #ccc;
+  transition: 0.4s;
+  border-radius: 34px;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+}
+
+.slider::before {
+  content: "";
+  position: absolute;
+  height: 22px;
+  width: 22px;
+  left: 3px;
+  bottom: 3px;
+  background-color: white;
+  transition: 0.4s;
+  border-radius: 50%;
+}
+
+input:checked + .slider {
+  background-color: #2196F3;
+}
+
+input:checked + .slider::before {
+  transform: translateX(22px);
+}
+.dark-mode {
+  background-color: #121212;
+  color: white;
+}
+
 
   </style>
 </head>
@@ -147,9 +251,13 @@
         <div class="loading-text"></div>
       </div>
       
-  <button class="toggle-mode" onclick="toggleMode()">Ganti Tema</button>
+      <label class="switch">
+        <input type="checkbox" onchange="toggleMode()">
+        <span class="slider"></span>
+      </label>
+      
   <header>
-    <h1>Kalkulator Determinan Matriks 4x4</h1>
+    <h1>Determinan Matriks 4x4</h1>
   </header>
   <div class="method-select">
     <label for="method">Pilih metode :</label>
@@ -185,8 +293,9 @@
     }
 
     function toggleMode() {
-      document.body.classList.toggle('dark');
-    }
+  document.body.classList.toggle("dark-mode");
+}
+
 
     function calculate() {
   const methodName = document.getElementById('method').options[document.getElementById('method').selectedIndex].text;
@@ -234,11 +343,14 @@ for (let col = 0; col < 4; col++) {
   const contrib = matrix[0][col] * cof;
   det += contrib;
 
-  html += `<p>a<sub>1${col + 1}</sub> = ${matrix[0][col]}, tanda = ${sign}, minor = ${minorDet.value}</p>`;
-  html += renderMatrix(minor);
-  html += minorDet.html;
-  html += `<p>Kofaktor = ${sign} × ${minorDet.value} = <b>${cof}</b></p>`;
-  html += `<p>Kontribusi determinan = ${matrix[0][col]} × ${cof} = <b>${contrib}</b></p><hr />`;
+  html += `<div class="minor-card">`;
+html += `<p>a<sub>1${col + 1}</sub> = ${matrix[0][col]}, tanda = ${sign}, minor = ${minorDet.value}</p>`;
+html += renderMatrix(minor);
+html += minorDet.html;
+html += `<p>Kofaktor = ${sign} × ${minorDet.value} = <b>${cof}</b></p>`;
+html += `<p>Kontribusi determinan = ${matrix[0][col]} × ${cof} = <b>${contrib}</b></p>`;
+html += `</div>`;
+
 
   detContributions.push(contrib);
 }
@@ -267,20 +379,33 @@ html += `<div class="final-result">Determinan Matriks = <span>${det}</span></div
     }
 
     function sarrus3x3(m) {
-      const [a, b, c] = m[0];
-      const [d, e, f] = m[1];
-      const [g, h, i] = m[2];
-      const main = a * e * i + b * f * g + c * d * h;
-      const sec = c * e * g + a * f * h + b * d * i;
-      const value = main - sec;
-      const html = `
-        <p><strong>Metode Sarrus:</strong><br>
-        (${a}×${e}×${i} + ${b}×${f}×${g} + ${c}×${d}×${h}) -
-        (${c}×${e}×${g} + ${a}×${f}×${h} + ${b}×${d}×${i}) =
-        ${main} - ${sec} = <b>${value}</b></p>
-      `;
-      return { value, html };
-    }
+  const [a, b, c] = m[0];
+  const [d, e, f] = m[1];
+  const [g, h, i] = m[2];
+  const main = a * e * i + b * f * g + c * d * h;
+  const sec = c * e * g + a * f * h + b * d * i;
+  const value = main - sec;
+
+  // Matriks Sarrus diperluas
+  const sarrusExpanded = m.map(row => [...row, row[0], row[1]]);
+
+  let sarrusHtml = '<p><strong>Matriks Sarrus:</strong></p>';
+  sarrusHtml += '<table class="matrix-table">';
+  for (let row of sarrusExpanded) {
+    sarrusHtml += '<tr>' + row.map(n => `<td>${n}</td>`).join('') + '</tr>';
+  }
+  sarrusHtml += '</table>';
+
+  sarrusHtml += `
+    <p><strong>Perhitungan:</strong><br>
+    (${a}×${e}×${i} + ${b}×${f}×${g} + ${c}×${d}×${h}) - 
+    (${c}×${e}×${g} + ${a}×${f}×${h} + ${b}×${d}×${i}) =
+    ${main} - ${sec} = <b>${value}</b></p>
+  `;
+
+  return { value, html: sarrusHtml };
+}
+
   </script>
 </body>
 </html>
